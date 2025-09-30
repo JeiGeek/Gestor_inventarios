@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta #para configurar el tiempo de expiracion del token
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,6 +29,16 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+#Configuracion de CORS
+CORS_ALLOW_ALL_ORIGINS = True
+
+#configuracion de session para que no de error al usar SessionAuthentication
+CORS_ALL_CREDENTIALS = True
+
+# Definir el modelo de usuario personalizado
+#AUTH_USER_MODEL = "usuarios.Usuario"
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,6 +51,11 @@ INSTALLED_APPS = [
 
     # Apis
     'rest_framework',
+    
+    #cors
+    "corsheaders",
+    #token
+    "rest_framework_simplejwt",
 
     # Apps
     'apps.usuarios',
@@ -52,6 +68,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -130,3 +147,40 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# Configuracion para rest framework
+
+REST_FRAMEWORK = {
+    #filtar de forma sencilla
+    "DEFAULT_FILTER_BACKENDS": [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    
+    #trabajar con autenticacion por token
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+
+    ],
+    
+    #definir permisos globales
+    "DEFAULT_PERMISSION_CLASSES": [
+        'rest_framework.permissions.IsAuthenticated', #solo usuarios autenticados
+    ],
+
+}
+
+
+# Configuracion para JWT por tiempo de expiracion
+SIMPLE_JWT = {
+    #Token de acceso que se utiliza en  cada peticion
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Token de acceso dura 15 min
+    #Duracion del token de refresco (sirve para obtener un nuevo token de acceso sin necesidad de loguearse)
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Token de refresco dura 1 día
+    
+    'ROTATE_REFRESH_TOKENS': True,                  # Renovar refresh token
+    'BLACKLIST_AFTER_ROTATION': True,               # Invalidar token anterior
+    "AUTH_HEADER_TYPES": ("Bearer",),  # Tipo de token en el header Authorization
+}
