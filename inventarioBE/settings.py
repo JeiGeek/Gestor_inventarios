@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     # Apis
     'rest_framework',
 
+    # Cors Headers
+    'corsheaders',
+
     # Apps
     'apps.usuarios',
     'apps.productos',
@@ -57,6 +60,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Cors Headers Middleware
+    'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'inventarioBE.urls'
@@ -134,3 +141,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True # Permitir todas las origines (solo para desarrollo) recordar cambiar en produccion
