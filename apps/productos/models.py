@@ -20,15 +20,23 @@ class Sucursal(models.Model):
 
 # PRODUCTOS
 class Producto(models.Model):
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=255, editable=False)  # Nombre generado automáticamente
     caja = models.CharField(max_length=100)
     amperaje = models.PositiveIntegerField()
     polaridad = models.CharField(max_length=5)
     voltaje = models.PositiveIntegerField()
     stock = models.PositiveIntegerField()
 
+    # Imagen
+    imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
+
     # Llaves foraneas
     marca = models.ForeignKey(Marca, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        # Convertir el nombre con la combinacion requerida
+        self.nombre = f"{self.marca.nombre} {self.caja} {self.amperaje} {self.polaridad}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.nombre
