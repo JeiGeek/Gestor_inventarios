@@ -171,7 +171,7 @@ REST_FRAMEWORK = {
     
     #definir permisos globales
     "DEFAULT_PERMISSION_CLASSES": [
-        'rest_framework.permissions.AllowAny', #solo usuarios autenticados
+       'rest_framework.permissions.IsAuthenticated', #solo usuarios autenticados
     ],
 
 }
