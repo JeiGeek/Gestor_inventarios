@@ -26,6 +26,10 @@ SECRET_KEY = 'django-insecure-w48xdp^cgw-292)34h^1udou4g6i3+()fm)0xvchyfn^*j%!z$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Definir el modelo de usuario personalizado
+AUTH_USER_MODEL = 'usuarios.Usuario'
+
+
 ALLOWED_HOSTS = []
 
 
@@ -167,7 +171,7 @@ REST_FRAMEWORK = {
     
     #definir permisos globales
     "DEFAULT_PERMISSION_CLASSES": [
-        'rest_framework.permissions.IsAuthenticated', #solo usuarios autenticados
+        'rest_framework.permissions.AllowAny', #solo usuarios autenticados
     ],
 
 }

@@ -19,19 +19,16 @@ from django.urls import path, include
 #importar las vistas para el token
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
-
-
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 #creacion de las rutas
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('apps.usuarios.urls')),
     
-    #Rutas JWT
-    # tokens: el de acceso y el de refresco
-    
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    # Rutas para JWT
+
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
 ]
 

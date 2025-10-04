@@ -1,15 +1,18 @@
 from django.urls import path, include
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from rest_framework.routers import DefaultRouter
-from .views import UsuarioViewSet, RolViewSet, RegisterView#, MyTokenObtainPairView 
+from .views import UsuarioViewSet, RolViewSet
 
-#crea un enrutador y registrar el viewset de usuarios y roles
+# Rutas del router (usuarios y roles)
 router = DefaultRouter()
-router.register(r'usuarios', UsuarioViewSet)
-router.register(r'roles', RolViewSet)
+router.register(r'usuarios', UsuarioViewSet, basename='usuarios')
+router.register(r'roles', RolViewSet, basename='roles')
 
-#incluir las URL del enrutador
 urlpatterns = [
+
+        # Endpoints personalizados (fuera de 'usuarios/' para evitar conflictos)
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),
-    path('register/', RegisterView.as_view(), name='register'),
-    #path("api/token1/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
+
 ]
