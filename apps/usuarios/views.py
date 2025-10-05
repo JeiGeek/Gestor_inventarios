@@ -18,7 +18,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     serializer_class = UsuarioSerializer #usar el serializador de usuarios
     
     # Acción personalizada para el registro: Crea el endpoint /usuarios/registro/
-    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['post'] )#, permission_classes=[AllowAny])
     def registro(self, request):
         # 1. Usar el Serializador de Registro para validar y crear el usuario
         serializer = RegistroUsuarioSerializer(data=request.data)
