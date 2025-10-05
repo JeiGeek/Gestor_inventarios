@@ -33,6 +33,9 @@ class Producto(models.Model):
     # Llaves foraneas
     marca = models.ForeignKey(Marca, on_delete=models.CASCADE)
 
+    # Relacion muchos a muchos con Sucursal a través de ProductoSucursal
+    sucursales = models.ManyToManyField(Sucursal, through='ProductoSucursal', related_name='productos')
+
     def save(self, *args, **kwargs):
         # Convertir el nombre con la combinacion requerida
         self.nombre = f"{self.marca.nombre} {self.caja} {self.amperaje} {self.polaridad}"
@@ -53,5 +56,5 @@ class ProductoSucursal(models.Model):
         unique_together = ('producto', 'sucursal') # Asegura que no haya duplicados
 
     def __str__(self):
-        return f'Producto Sucursal {self.id} - Fecha de Creación: {self.fecha_creacion}'
+        return f'Producto Sucursal {self.id}'
 
