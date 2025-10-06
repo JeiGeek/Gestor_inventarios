@@ -13,6 +13,7 @@ class TipoInventario(models.Model):
 
 # INVENTARIOS
 class Inventario(models.Model):
+    stock_anterior = models.IntegerField(default=0)
     conteo = models.IntegerField()
     ventas = models.IntegerField()
     num_diferencias = models.IntegerField()
