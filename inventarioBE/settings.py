@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     "corsheaders",
     #token
     "rest_framework_simplejwt",
+    #contraseña olvidada
+    'django_rest_passwordreset',  
 
     # Apps
     'apps.usuarios',
@@ -74,7 +76,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -164,14 +166,13 @@ REST_FRAMEWORK = {
     
     #trabajar con autenticacion por token
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
 
     ],
     
     #definir permisos globales
     "DEFAULT_PERMISSION_CLASSES": [
-        'rest_framework.permissions.AllowAny', #solo usuarios autenticados
+        'rest_framework.permissions.IsAuthenticated', #solo usuarios autenticados
     ],
 
 }
@@ -188,3 +189,13 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,               # Invalidar token anterior
     "AUTH_HEADER_TYPES": ("Bearer",),  # Tipo de token en el header Authorization
 }
+
+#configuracion para enviar correos
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "powerstock2025@gmail.com"
+EMAIL_HOST_PASSWORD = "vttd tdgb vgxb aumn"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

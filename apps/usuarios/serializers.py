@@ -5,7 +5,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 User = get_user_model()
 from rest_framework.permissions import AllowAny
-
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UsuarioSerializer(serializers.ModelSerializer):
     permission_classes = [AllowAny]
@@ -62,3 +62,21 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
             
         )
         return usuario
+
+
+#personalizar el token
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Agregamos información personalizada del usuario
+        token['email'] = user.email
+        token['nombre'] = user.nombre
+        token['username'] = user.username
+
+        #  Aquí añadimos el rol del usuario
+        if hasattr(user, 'rol_id') and user.rol_id:
+            token['rol'] = user.rol.nombre
+
+        return token

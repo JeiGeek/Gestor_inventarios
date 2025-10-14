@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 #para los endpoints
 from rest_framework import viewsets, generics
-from .serializers import RegistroUsuarioSerializer, UsuarioSerializer, RolSerializer
+from .serializers import RegistroUsuarioSerializer, UsuarioSerializer, RolSerializer,CustomTokenObtainPairSerializer
 from .models import Usuario, Rol
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
@@ -12,13 +12,15 @@ User = get_user_model()
 from rest_framework import viewsets, status # Añadir 'status'
 from rest_framework.decorators import action # Añadir 'action'
 from rest_framework.response import Response # Añadir 'Response'
+
+
 #ayudan a crear los endpoints de forma automatica
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all() #traer todos los usuarios
     serializer_class = UsuarioSerializer #usar el serializador de usuarios
     
     # Acción personalizada para el registro: Crea el endpoint /usuarios/registro/
-    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['post'])#, permission_classes=[AllowAny])
     def registro(self, request):
         # 1. Usar el Serializador de Registro para validar y crear el usuario
         serializer = RegistroUsuarioSerializer(data=request.data)
@@ -55,3 +57,7 @@ class RegistroRolView(viewsets.ModelViewSet):  #esto me trae todos lo metodos ge
     serializer_class = RolSerializer
 
 
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
