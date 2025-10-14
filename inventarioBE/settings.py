@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from datetime import timedelta #para configurar el tiempo de expiracion del token
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,21 @@ SECRET_KEY = 'django-insecure-w48xdp^cgw-292)34h^1udou4g6i3+()fm)0xvchyfn^*j%!z$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Definir el modelo de usuario personalizado
+AUTH_USER_MODEL = 'usuarios.Usuario'
+
+
 ALLOWED_HOSTS = []
+
+
+#Configuracion de CORS
+CORS_ALLOW_ALL_ORIGINS = True
+
+#configuracion de session para que no de error al usar SessionAuthentication
+CORS_ALL_CREDENTIALS = True
+
+# Definir el modelo de usuario personalizado
+#AUTH_USER_MODEL = "usuarios.Usuario"
 
 
 # Application definition
@@ -40,9 +55,13 @@ INSTALLED_APPS = [
 
     # Apis
     'rest_framework',
-
-    # Cors Headers
-    'corsheaders',
+    
+    #cors
+    "corsheaders",
+    #token
+    "rest_framework_simplejwt",
+    #contraseña olvidada
+    'django_rest_passwordreset',  
 
     # Apps
     'apps.usuarios',
@@ -55,8 +74,9 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -137,6 +157,52 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# Configuracion para rest framework
+
+REST_FRAMEWORK = {
+    #filtar de forma sencilla
+    "DEFAULT_FILTER_BACKENDS": [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    
+    #trabajar con autenticacion por token
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+
+    ],
+    
+    #definir permisos globales
+    "DEFAULT_PERMISSION_CLASSES": [
+        'rest_framework.permissions.IsAuthenticated', #solo usuarios autenticados
+    ],
+
+}
+
+
+# Configuracion para JWT por tiempo de expiracion
+SIMPLE_JWT = {
+    #Token de acceso que se utiliza en  cada peticion
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Token de acceso dura 15 min
+    #Duracion del token de refresco (sirve para obtener un nuevo token de acceso sin necesidad de loguearse)
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Token de refresco dura 1 día
+    
+    'ROTATE_REFRESH_TOKENS': True,                  # Renovar refresh token
+    'BLACKLIST_AFTER_ROTATION': True,               # Invalidar token anterior
+    "AUTH_HEADER_TYPES": ("Bearer",),  # Tipo de token en el header Authorization
+}
+
+#configuracion para enviar correos
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "powerstock2025@gmail.com"
+EMAIL_HOST_PASSWORD = "vttd tdgb vgxb aumn"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Media files
 MEDIA_URL = '/media/'
