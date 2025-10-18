@@ -61,7 +61,8 @@ INSTALLED_APPS = [
     "corsheaders",
     #token
     "rest_framework_simplejwt",
-    #contraseña olvidada
+    #recuperacion de contraseña
+    'django.contrib.sites',  
     'django_rest_passwordreset',  
     
     #implementar OAuth
@@ -186,6 +187,12 @@ REST_FRAMEWORK = {
 }
 
 
+#configuraciones necesarias
+
+SECRET_KEY = config('DJANGO_SECRET_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+
 # Configuracion para JWT por tiempo de expiracion
 SIMPLE_JWT = {
     #Token de acceso que se utiliza en  cada peticion
@@ -204,8 +211,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "powerstock2025@gmail.com"
-EMAIL_HOST_PASSWORD = "vttd tdgb vgxb aumn"
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
@@ -215,9 +222,6 @@ AUTHENTICATION_BACKENDS = (
 )
 
 
-
-SECRET_KEY = config('DJANGO_SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_OAUTH2_SECRET')

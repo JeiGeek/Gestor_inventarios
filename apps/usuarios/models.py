@@ -33,7 +33,8 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
     nombre = models.CharField(max_length=150, null=True, blank=True)
-    numero_telefono = models.PositiveIntegerField(null=True, blank=True)
+    numero_telefono = models.CharField(max_length=20, null=True, blank=True)#por si el telefono le agregan +
+
     rol = models.ForeignKey(Rol, on_delete=models.SET_NULL, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
