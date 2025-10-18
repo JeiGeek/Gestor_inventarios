@@ -58,6 +58,8 @@ class RegistroRolView(viewsets.ModelViewSet):  #esto me trae todos lo metodos ge
 
 
 
-
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+
+

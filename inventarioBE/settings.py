@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta #para configurar el tiempo de expiracion del token
+from decouple import config #para manejar credenciales en github
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -62,6 +63,9 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     #contraseña olvidada
     'django_rest_passwordreset',  
+    
+    #implementar OAuth
+    'social_django',
 
     # Apps
     'apps.usuarios',
@@ -80,6 +84,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'inventarioBE.urls'
@@ -92,6 +98,8 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -199,3 +207,41 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "powerstock2025@gmail.com"
 EMAIL_HOST_PASSWORD = "vttd tdgb vgxb aumn"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',   # para Google
+    'django.contrib.auth.backends.ModelBackend',  # login normal
+)
+
+
+
+SECRET_KEY = config('DJANGO_SECRET_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_OAUTH2_SECRET')
+
+
+#  Pipeline (para ejecutar nuestra lógica al crear usuario)
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.user.get_username',
+    'apps.usuarios.pipelines.associate_by_email', 
+    'social_core.pipeline.social_auth.social_user',
+
+    
+    'social_core.pipeline.user.create_user',
+    
+    'apps.usuarios.pipelines.asignar_rol_por_defecto',
+
+    'apps.usuarios.pipelines.associate_user_safe',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+    'apps.usuarios.pipelines.save_profile',
+    'apps.usuarios.pipelines.create_jwt_token_with_role',
+    'apps.usuarios.pipelines.social_user_safe',
+    
+)

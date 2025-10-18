@@ -12,16 +12,17 @@ class Rol(models.Model):
 
 # MANAGER PERSONALIZADO
 class UsuarioManager(BaseUserManager):
-    def create_user(self, email, nombre, password=None, **extra_fields):
+    def create_user(self, email, nombre=None, password=None, **extra_fields):
         if not email:
             raise ValueError('El usuario debe tener un correo electrónico')
+
         email = self.normalize_email(email)
         user = self.model(email=email, nombre=nombre, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, nombre, password=None, **extra_fields):
+    def create_superuser(self, email, nombre=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, nombre, password, **extra_fields)
@@ -31,7 +32,7 @@ class UsuarioManager(BaseUserManager):
 class Usuario(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
-    nombre = models.CharField(max_length=150)
+    nombre = models.CharField(max_length=150, null=True, blank=True)
     numero_telefono = models.PositiveIntegerField(null=True, blank=True)
     rol = models.ForeignKey(Rol, on_delete=models.SET_NULL, null=True, blank=True)
 
