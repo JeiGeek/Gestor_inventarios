@@ -97,6 +97,10 @@ def associate_by_email(strategy, details, backend, uid=None, user=None, *args, *
     try:
         usuario_existente = Usuario.objects.filter(Q(email__iexact=email)).first()
         if usuario_existente:
+            if not usuario_existente.is_active:
+                print(f"🚫 Usuario {email} está desactivado, no puede ingresar con Google.")
+                raise AuthForbidden(backend)
+
             print(f"✅ Usuario existente encontrado: {usuario_existente.email}")
             return {'user': usuario_existente}
         else:

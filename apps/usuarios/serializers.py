@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import exceptions
 
 # ----------------------
 # SERIALIZER USUARIO
@@ -39,6 +40,10 @@ class UsuarioSerializer(serializers.ModelSerializer):
                 print("✅ Rol actualizado correctamente en el backend")
             except Rol.DoesNotExist:
                 raise serializers.ValidationError({"rol_id": "El rol no existe"})
+            
+        # Manejar is_active
+        if "is_active" in validated_data:
+            instance.is_active = validated_data["is_active"]
 
         # Actualizar otros campos
         for key, value in validated_data.items():
@@ -95,6 +100,15 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
 # SERIALIZER TOKEN PERSONALIZADO
 # ----------------------
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        # ✅ Bloquear si el usuario está desactivado
+        if not self.user.is_active:
+            raise exceptions.AuthenticationFailed('Usuario desactivado', code='user_inactive')
+
+        return data
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
