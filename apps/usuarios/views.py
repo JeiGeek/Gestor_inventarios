@@ -19,6 +19,34 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all() #traer todos los usuarios
     serializer_class = UsuarioSerializer #usar el serializador de usuarios
     
+    
+    @action(detail=True, methods=['put'])
+    def toggle_active(self, request, pk=None):
+            try:
+                usuario = self.get_object()
+                
+                # Alternar
+                usuario.is_active = not usuario.is_active
+                usuario.save()  # ✅ Guarda realmente en BD
+
+                return Response(
+                    {"message": "Estado actualizado", "is_active": usuario.is_active},
+                    status=status.HTTP_200_OK
+                )
+
+            except Usuario.DoesNotExist:
+                return Response(
+                    {"error": "Usuario no encontrado"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            except Exception as e:
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+
+            
     # Acción personalizada para el registro: Crea el endpoint /usuarios/registro/
     @action(detail=False, methods=['post'])
     def registro(self, request):

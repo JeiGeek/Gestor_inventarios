@@ -33,7 +33,6 @@ class Migration(migrations.Migration):
             name='Inventario',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('stock_anterior', models.IntegerField(default=0)),
                 ('conteo', models.IntegerField()),
                 ('ventas', models.IntegerField(blank=True, null=True)),
                 ('num_diferencias', models.IntegerField(blank=True, null=True)),
