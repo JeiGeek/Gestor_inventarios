@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q
-from .models import TipoInventario, Inventario, InventarioProducto
+from .models import TipoInventario, Inventario, InventarioProducto, LoteInventario
 from .serializers import TipoInventarioSerializer, InventarioSerializer
 from apps.productos.models import Producto, Sucursal
 
@@ -96,22 +96,37 @@ class InventarioListCreateView(APIView):
     def post(self, request):
         data = request.data
 
-        # Si es un solo objeto (un inventario)
+        # Un solo inventario (AQUÍ ES EL CAMBIO)
         if isinstance(data, dict):
+            # Si no viene lote_id, crearlo automáticamente
+            if 'lote_id' not in data or data.get('lote_id') in (None, ''):
+                lote = LoteInventario.objects.create()
+                # importante: no mutar request.data in-place; crea una copia con el lote_id
+                data = {**data, 'lote_id': lote.id}
+
             serializer = InventarioSerializer(data=data)
             if serializer.is_valid():
                 inventario = serializer.save()
                 return Response(InventarioSerializer(inventario).data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Si es una lista de objetos (varios inventarios a la vez)
+        # Varios inventarios (ya lo tenías OK)
         elif isinstance(data, list):
             created_items = []
+
+            # Si ningún item trae lote_id, creamos un lote y lo inyectamos en todos
+            if all('lote_id' not in item or item.get('lote_id') in (None, '') for item in data):
+                lote = LoteInventario.objects.create()
+                lote_id = lote.id
+                for item in data:
+                    item['lote_id'] = lote_id
+
             for item in data:
                 serializer = InventarioSerializer(data=item)
                 serializer.is_valid(raise_exception=True)
                 inventario = serializer.save()
                 created_items.append(InventarioSerializer(inventario).data)
+
             return Response(created_items, status=status.HTTP_201_CREATED)
 
         return Response({"error": "Formato de datos inválido"}, status=status.HTTP_400_BAD_REQUEST)
