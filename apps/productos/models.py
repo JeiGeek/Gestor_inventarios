@@ -20,15 +20,26 @@ class Sucursal(models.Model):
 
 # PRODUCTOS
 class Producto(models.Model):
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=255, editable=False)  # Nombre generado automáticamente
     caja = models.CharField(max_length=100)
     amperaje = models.PositiveIntegerField()
     polaridad = models.CharField(max_length=5)
     voltaje = models.PositiveIntegerField()
     stock = models.PositiveIntegerField()
 
+    # Imagen
+    imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
+
     # Llaves foraneas
     marca = models.ForeignKey(Marca, on_delete=models.CASCADE)
+
+    # Relacion muchos a muchos con Sucursal a través de ProductoSucursal
+    sucursales = models.ManyToManyField(Sucursal, through='ProductoSucursal', related_name='productos')
+
+    def save(self, *args, **kwargs):
+        # Convertir el nombre con la combinacion requerida
+        self.nombre = f"{self.marca.nombre} {self.caja} {self.amperaje} {self.polaridad}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.nombre
@@ -45,5 +56,5 @@ class ProductoSucursal(models.Model):
         unique_together = ('producto', 'sucursal') # Asegura que no haya duplicados
 
     def __str__(self):
-        return f'Producto Sucursal {self.id} - Fecha de Creación: {self.fecha_creacion}'
+        return f'Producto Sucursal {self.id}'
 

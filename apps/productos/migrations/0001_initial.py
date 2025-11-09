@@ -32,12 +32,13 @@ class Migration(migrations.Migration):
             name='Producto',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(max_length=100)),
+                ('nombre', models.CharField(editable=False, max_length=255)),
                 ('caja', models.CharField(max_length=100)),
                 ('amperaje', models.PositiveIntegerField()),
                 ('polaridad', models.CharField(max_length=5)),
                 ('voltaje', models.PositiveIntegerField()),
                 ('stock', models.PositiveIntegerField()),
+                ('imagen', models.ImageField(blank=True, null=True, upload_to='productos/')),
                 ('marca', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='productos.marca')),
             ],
         ),
@@ -51,5 +52,10 @@ class Migration(migrations.Migration):
             options={
                 'unique_together': {('producto', 'sucursal')},
             },
+        ),
+        migrations.AddField(
+            model_name='producto',
+            name='sucursales',
+            field=models.ManyToManyField(related_name='productos', through='productos.ProductoSucursal', to='productos.sucursal'),
         ),
     ]

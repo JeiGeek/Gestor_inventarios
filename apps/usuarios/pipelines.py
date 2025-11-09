@@ -45,8 +45,9 @@ def create_jwt_token_with_role(strategy, backend, user, *args, **kwargs):
     refresh = RefreshToken.for_user(user)
     refresh['rol'] = user.rol.nombre if getattr(user, 'rol', None) else 'sin_rol'
     access_token = str(refresh.access_token)
+    refresh_token = str(refresh)
     frontend_url = "http://localhost:5173/"
-    return strategy.redirect(f"{frontend_url}?token={access_token}")
+    return strategy.redirect(f"{frontend_url}?token={access_token}&refresh={refresh_token}")
 
 # safe wrappers (optional, pueden adaptarse)
 def associate_user_safe(backend, uid, user=None, *args, **kwargs):
@@ -74,13 +75,14 @@ def social_user_safe(backend, uid, user=None, *args, **kwargs):
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 
+from social_core.exceptions import AuthForbidden  
+
 def associate_by_email(strategy, details, backend, uid=None, user=None, *args, **kwargs):
     print("🚀 Entró al pipeline associate_by_email")
     print("Detalles recibidos:", details)
     email = (details.get('email') or '').strip().lower()
     print(f"Email detectado: {email}")
 
-    # Ignorar usuario actual si hay sesión previa
     if user:
         print(f"⚠️ Ignorando usuario logueado ({getattr(user, 'email', None)}) para buscar coincidencia real.")
         user = None
@@ -93,14 +95,14 @@ def associate_by_email(strategy, details, backend, uid=None, user=None, *args, *
         return None
 
     try:
-        # Buscar usuario existente por email (case insensitive)
         usuario_existente = Usuario.objects.filter(Q(email__iexact=email)).first()
         if usuario_existente:
             print(f"✅ Usuario existente encontrado: {usuario_existente.email}")
             return {'user': usuario_existente}
         else:
-            print(f"❌ No existe usuario con el correo {email}")
-            return None
+            print(f"⛔ No existe usuario con el correo {email}. Acceso denegado.")
+            # 🚫 Bloquear el acceso inmediatamente
+            raise AuthForbidden(backend)
     except Exception as e:
         print(f"💥 Error en associate_by_email: {e}")
-        return None
+        raise AuthForbidden(backend)

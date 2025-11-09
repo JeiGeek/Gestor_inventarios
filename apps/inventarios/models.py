@@ -13,15 +13,23 @@ class TipoInventario(models.Model):
 
 # INVENTARIOS
 class Inventario(models.Model):
+    stock_anterior = models.IntegerField(default=0)
     conteo = models.IntegerField()
-    ventas = models.IntegerField()
-    num_diferencias = models.IntegerField()
-    comentario = models.TextField()
+    ventas = models.IntegerField(null=True, blank=True)          # puede ser null si aplica
+    num_diferencias = models.IntegerField(null=True, blank=True) # puede ser null si aplica
+    comentario = models.TextField(null=True, blank=True)         # opcional
+    diferencias_encontrada = models.BooleanField(default=False)  # true si se encontraron diferencias
 
     # Llaves foraneas
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     tipo_inventario = models.ForeignKey(TipoInventario, on_delete=models.CASCADE)
     sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
+
+    # Relación muchos a muchos con Producto a través de InventarioProducto
+    productos = models.ManyToManyField(Producto, through='InventarioProducto', related_name='inventarios')
+
+    # Fecha de creación
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Inventario: {self.conteo}, Ventas: {self.ventas}, Diferencias: {self.num_diferencias}, Comentarios: {self.comentario}"
@@ -30,11 +38,9 @@ class Inventario(models.Model):
 # INVENTARIO - PRODUCTO
 class InventarioProducto(models.Model):
 
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-
     # Llaves foraneas
     inventario = models.ForeignKey(Inventario, on_delete=models.CASCADE)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE)
 
     def __str__(self):
         return f'Inventario Producto {self.id} - Fecha de Creación: {self.fecha_creacion}'

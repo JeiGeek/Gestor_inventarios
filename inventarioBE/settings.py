@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 from datetime import timedelta #para configurar el tiempo de expiracion del token
 from decouple import config #para manejar credenciales en github
@@ -83,10 +83,12 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
-    'social_django.middleware.SocialAuthExceptionMiddleware',
+
 ]
 
 ROOT_URLCONF = 'inventarioBE.urls'
@@ -187,16 +189,13 @@ REST_FRAMEWORK = {
 }
 
 
-#configuraciones necesarias
 
-SECRET_KEY = config('DJANGO_SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
 
 
 # Configuracion para JWT por tiempo de expiracion
 SIMPLE_JWT = {
     #Token de acceso que se utiliza en  cada peticion
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Token de acceso dura 15 min
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=35),  # Token de acceso dura 35 min
     #Duracion del token de refresco (sirve para obtener un nuevo token de acceso sin necesidad de loguearse)
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Token de refresco dura 1 día
     
@@ -249,3 +248,15 @@ SOCIAL_AUTH_PIPELINE = (
     'apps.usuarios.pipelines.social_user_safe',
     
 )
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True # Permitir todas las origines (para desarrollo)
+
+# URL de redirección en caso de error durante el login por OAuth y no encuentra usuario en la BD
+SOCIAL_AUTH_LOGIN_ERROR_URL = "http://localhost:5173/?error=oauth"
+
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
