@@ -157,4 +157,3 @@ class InventarioDetailView(APIView):
             return Response({'error': 'Inventario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
         inventario.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
