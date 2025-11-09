@@ -44,3 +44,4 @@ class InventarioProducto(models.Model):
 
     def __str__(self):
         return f'Inventario Producto {self.id} - Fecha de Creación: {self.fecha_creacion}'
+    

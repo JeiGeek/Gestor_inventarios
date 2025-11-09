@@ -1,4 +1,4 @@
-#pasar de un objeto de Django a json
+# pasar de un objeto de Django a JSON
 from rest_framework import serializers
 from .models import Usuario, Rol
 from django.contrib.auth.hashers import make_password
@@ -7,76 +7,103 @@ User = get_user_model()
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+# ----------------------
+# SERIALIZER USUARIO
+# ----------------------
 class UsuarioSerializer(serializers.ModelSerializer):
     permission_classes = [AllowAny]
-    
-    #para encriptar la contraseña
+    password = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = Usuario
         fields = '__all__'
         extra_kwargs = {"password": {"write_only": True}}  # nunca devolver la contraseña
 
     def create(self, validated_data):
-        # Encriptamos la contraseña antes de guardar
-        validated_data["password"] = make_password(validated_data["password"])
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        # Si viene un campo password, lo encriptamos
         if "password" in validated_data:
             validated_data["password"] = make_password(validated_data["password"])
-        return super().update(instance, validated_data)
-    
+        return super().create(validated_data)
 
+    
+    def update(self, instance, validated_data):
+        # Encriptar password solo si viene
+        if "password" in validated_data:
+            validated_data["password"] = make_password(validated_data.pop("password"))
+
+        # Manejar rol
+        rol_id = validated_data.get("rol_id", None)
+        if rol_id is not None:
+            try:
+                rol_instance = Rol.objects.get(id=rol_id)
+                instance.rol = rol_instance
+                print("✅ Rol actualizado correctamente en el backend")
+            except Rol.DoesNotExist:
+                raise serializers.ValidationError({"rol_id": "El rol no existe"})
+
+        # Actualizar otros campos
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+
+        instance.save()  # ✅ FALTA ESTO PARA GUARDAR EN BD
+        return instance
+
+
+
+
+# ----------------------
+# SERIALIZER ROL
+# ----------------------
 class RolSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rol
         fields = '__all__'
 
-
-
-#serializador para el registro de usuarios personalizado
+# ----------------------
+# SERIALIZER REGISTRO USUARIO
+# ----------------------
 class RegistroUsuarioSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     permission_classes = [AllowAny]
-    # Usar PrimaryKeyRelatedField para aceptar el ID en la entrada
-    rol_id = serializers.PrimaryKeyRelatedField(
-        queryset=Rol.objects.all(), # Asegura que el ID exista en el modelo Rol
-        required=True # Asegúrate de que este campo es obligatorio
-    )
-    
+
+    # Usamos IntegerField para aceptar solo ID desde frontend
+    rol_id = serializers.IntegerField(required=True)
+
     class Meta:
         model = Usuario
         fields = ['id', 'email', 'nombre', 'username', 'numero_telefono', 'rol_id', 'password']
 
     def create(self, validated_data):
-        rol_instance = validated_data.pop('rol_id')  # Extraer la instancia del rol
-        rol_id_entero = rol_instance.id  # Obtener el ID entero del rol
+        # Obtener instancia de rol desde el ID
+        rol_id = validated_data.pop('rol_id')
+        try:
+            rol_instance = Rol.objects.get(id=rol_id)
+        except Rol.DoesNotExist:
+            raise serializers.ValidationError({"rol_id": "El rol especificado no existe"})
+
+        # Crear usuario con password encriptada
         usuario = Usuario.objects.create_user(
             email=validated_data['email'],
             nombre=validated_data['nombre'],
             password=validated_data['password'],
             username=validated_data.get('username', ''),
             numero_telefono=validated_data.get('numero_telefono', None),
-            rol_id=rol_id_entero  # asignar el rol
-            
+            rol=rol_instance
         )
         return usuario
 
-
-#personalizar el token
+# ----------------------
+# SERIALIZER TOKEN PERSONALIZADO
+# ----------------------
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
 
-        # Agregamos información personalizada del usuario
         token['email'] = user.email
         token['nombre'] = user.nombre
         token['username'] = user.username
 
-        #  Aquí añadimos el rol del usuario
-        if hasattr(user, 'rol_id') and user.rol_id:
+        if hasattr(user, 'rol') and user.rol:
             token['rol'] = user.rol.nombre
 
         return token
