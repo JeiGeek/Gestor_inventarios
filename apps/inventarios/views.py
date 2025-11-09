@@ -8,8 +8,13 @@ from .models import TipoInventario, Inventario, InventarioProducto
 from .serializers import TipoInventarioSerializer, InventarioSerializer
 from apps.productos.models import Producto, Sucursal
 
+# temporal
+from rest_framework.permissions import AllowAny
+
 ############################# -- Tipo Inventario -- ################################
 class TipoInventarioListCreateView(APIView):
+    #temporal
+    permission_classes = [AllowAny]
     """
     API para listar y crear tipos de inventario.
     """
@@ -29,6 +34,8 @@ class TipoInventarioListCreateView(APIView):
 
 
 class TipoInventarioDetailView(APIView):
+    #temporal
+    permission_classes = [AllowAny]
     """
     API para obtener, actualizar o eliminar un tipo de inventario por ID.
     """
@@ -76,6 +83,8 @@ class TipoInventarioDetailView(APIView):
 ############################# -- Inventario -- ################################
 
 class InventarioListCreateView(APIView):
+    #temporal
+    permission_classes = [AllowAny]
     """
     API para listar y crear inventarios.
     """
@@ -110,6 +119,8 @@ class InventarioListCreateView(APIView):
 
 
 class InventarioDetailView(APIView):
+    #temporal
+    permission_classes = [AllowAny]
     """
     API para obtener, actualizar (PATCH) o eliminar un inventario por ID.
     """
