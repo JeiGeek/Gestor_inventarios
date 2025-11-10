@@ -187,11 +187,13 @@ class ProductoListCreateView(APIView):
         # Obtener parámetros de consulta
         query = request.GET.get('q', '') # palabra a buscar
         marca_nombre = request.GET.get('marca', '') # filtro por marca
+        # filtro por sucursal
+        sucursal_nombre = request.GET.get('sucursal','')
 
         # Filtrar productos por búsqueda y marca
-        productos = Producto.objects.all()
+        productos = Producto.objects.all().prefetch_related('sucursales', 'marca')
 
-        if query or marca_nombre:
+        if query or marca_nombre or sucursal_nombre:
             # filtrar por palabra clave (nombre)
             if query:
                 productos = productos.filter(Q(nombre__icontains=query))
@@ -199,6 +201,10 @@ class ProductoListCreateView(APIView):
             # filtrar por marca
             if marca_nombre:
                 productos = productos.filter(marca__nombre__icontains=marca_nombre)
+            
+            # filtrar por sucursal
+            if sucursal_nombre:
+                productos = productos.filter(sucursales__nombre__icontains=sucursal_nombre)
 
         # Serializar y retornar la respuesta
         serializer = ProductoSerializer(productos, many=True, context={'request': request})
