@@ -18,10 +18,9 @@ class ProductoSerializer(serializers.ModelSerializer):
 
     # Método para obtener el nombre de la sucursal asociada
     def get_sucursal_nombre(self, obj):
-        relacion = ProductoSucursal.objects.filter(producto=obj).first()
-        if relacion and relacion.sucursal:
-            return relacion.sucursal.nombre
-        return None
+        # Mejor usa la relación directa, evita otra consulta
+        s = obj.sucursales.first()
+        return s.nombre if s else None
 
     # Método para crear un producto y asociarlo a una sucursal
     def create(self, validated_data):
@@ -29,14 +28,32 @@ class ProductoSerializer(serializers.ModelSerializer):
         producto = Producto.objects.create(**validated_data)
 
         # Verifica que la sucursal exista antes de crear la relación
-        if sucursal_id:
+        if sucursal_id is not None:
             try:
                 sucursal = Sucursal.objects.get(pk=sucursal_id)
-                ProductoSucursal.objects.create(producto=producto, sucursal=sucursal)
+                # Reemplaza cualquier relación previa (si la hubiera)
+                producto.sucursales.set([sucursal])
+            except Sucursal.DoesNotExist:
+                raise serializers.ValidationError({"sucursal_id": "La sucursal especificada no existe."})
+        return producto
+    
+    def update(self, instance, validated_data):
+        sucursal_id = validated_data.pop('sucursal_id', None)
+
+        # Actualiza campos simples
+        for attr, val in validated_data.items():
+            setattr(instance, attr, val)
+        instance.save()  # esto también recalcula 'nombre' en tu modelo
+
+        # Si vino sucursal_id en el PUT/PATCH, reemplaza la relación through
+        if sucursal_id is not None:
+            try:
+                sucursal = Sucursal.objects.get(pk=sucursal_id)
+                instance.sucursales.set([sucursal])  # reemplaza filas en ProductoSucursal
             except Sucursal.DoesNotExist:
                 raise serializers.ValidationError({"sucursal_id": "La sucursal especificada no existe."})
 
-        return producto
+        return instance
 
 class MarcaSerializer(serializers.ModelSerializer):
     
