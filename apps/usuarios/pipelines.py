@@ -44,6 +44,8 @@ def create_jwt_token_with_role(strategy, backend, user, *args, **kwargs):
         return
     refresh = RefreshToken.for_user(user)
     refresh['rol'] = user.rol.nombre if getattr(user, 'rol', None) else 'sin_rol'
+    refresh['nombre'] = user.nombre or user.first_name or ""
+    refresh['email'] = user.email or ""
     access_token = str(refresh.access_token)
     refresh_token = str(refresh)
     frontend_url = "http://localhost:5173/"
