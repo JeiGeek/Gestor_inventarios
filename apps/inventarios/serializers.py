@@ -43,6 +43,43 @@ class InventarioSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['fecha_creacion', 'stock_anterior', 'num_diferencias', 'diferencias_encontrada']
 
+    # ---------- Helpers privados ----------
+    def _get_pivot(self, instance):
+        """
+        Devuelve el primer InventarioProducto asociado al inventario.
+        Soporta ambos casos: con y sin prefetch.
+        """
+        # Si en el futuro haces prefetch con to_attr='inventario_productos_list'
+        piv_list = getattr(instance, 'inventario_productos_list', None)
+        if piv_list:
+            return piv_list[0]
+
+        # Fallback sin prefetch (consulta directa)
+        return InventarioProducto.objects.select_related('producto') \
+                                        .filter(inventario=instance) \
+                                        .first()
+
+    def _get_producto_id_y_nombre(self, instance):
+        piv = self._get_pivot(instance)
+        if not piv:
+            return None, None
+        pid = getattr(piv, 'producto_id', None)
+        p = getattr(piv, 'producto', None)
+        nombre = getattr(p, 'nombre', None) if p else None
+        return pid, nombre
+        
+    # ---------- Salida ----------
+    def to_representation(self, instance):
+        """
+        Agrega producto_id y producto_nombre al JSON de salida del inventario.
+        """
+        data = super().to_representation(instance)
+        pid, pnombre = self._get_producto_id_y_nombre(instance)
+        data['producto_id'] = pid
+        data['producto_nombre'] = pnombre
+        return data
+    
+
     def create(self, validated_data):
         tipo_inventario_id = validated_data.pop('tipo_inventario_id')
         sucursal_id = validated_data.pop('sucursal_id')
