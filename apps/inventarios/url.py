@@ -13,9 +13,9 @@ urlpatterns = [
     # --- RUTAS CRUD INVENTARIO ---
 
     # Listar y crear inventarios
-    path('inventarios/', InventarioListCreateView.as_view(), name='inventario-list-create'),
+    path('api/inventarios/', InventarioListCreateView.as_view(), name='inventario-list-create'),
     # Obtener, actualizar o eliminar un inventario por ID
-    path('inventarios/<int:pk>', InventarioDetailView.as_view(), name='inventario-detail'),
+    path('api/inventarios/<int:pk>', InventarioDetailView.as_view(), name='inventario-detail'),
 
 
 ]
