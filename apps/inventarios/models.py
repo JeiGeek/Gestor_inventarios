@@ -10,6 +10,15 @@ class TipoInventario(models.Model):
     def __str__(self):
         return self.nombre
 
+# LOTE DE INVENTARIOS (identificador simple para creaciones en bloque)
+class LoteInventario(models.Model):
+    # id autoincremental entero “sencillo”
+    # (AutoField es entero consecutivo por defecto)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        # El id es justo el número que quieres ver como identificador
+        return f"Lote #{self.id}"
 
 # INVENTARIOS
 class Inventario(models.Model):
@@ -27,6 +36,8 @@ class Inventario(models.Model):
 
     # Relación muchos a muchos con Producto a través de InventarioProducto
     productos = models.ManyToManyField(Producto, through='InventarioProducto', related_name='inventarios')
+
+    lote = models.ForeignKey(LoteInventario, on_delete=models.SET_NULL, null=True, blank=True, related_name='inventarios')
 
     # Fecha de creación
     fecha_creacion = models.DateTimeField(auto_now_add=True)

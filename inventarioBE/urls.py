@@ -25,17 +25,23 @@ from  apps.usuarios.views import CustomTokenObtainPairView
 #creacion de las rutas
 urlpatterns = [
     path('admin/', admin.site.urls),
+        #Recuperar contraseña
+    path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('', include('apps.productos.url')),
     path('', include('apps.inventarios.url')),
     path('api/', include('apps.usuarios.urls')),
     
     # Rutas para JWT
-
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    
 
 
+    # Google OAuth
+    path('oauth/', include('social_django.urls', namespace='social')),  
+
+
+    
 ]
 
 if settings.DEBUG:

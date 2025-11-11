@@ -1,4 +1,4 @@
-from django.shortcuts import render
+8from django.shortcuts import render
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,14 +7,16 @@ from django.db.models import Q
 from .models import Producto, Marca, Sucursal
 from .serializers import ProductoSerializer, MarcaSerializer, SucursalSerializer
 
-# acceder a las consultas sin autenticacion
+# temporal
 from rest_framework.permissions import AllowAny
+
 
 ############################# -- Marca-- ################################
 
 class MarcaListCreateView(APIView):
-    #permisos
+    #temporal
     permission_classes = [AllowAny]
+
     """
     API para listar y crear marcas.
     """
@@ -35,8 +37,9 @@ class MarcaListCreateView(APIView):
 
 
 class MarcaDetailView(APIView):
-    #permisos
+    #temporal
     permission_classes = [AllowAny]
+
     """
     API para obtener, actualizar o eliminar una marca por ID.
     """
@@ -84,8 +87,9 @@ class MarcaDetailView(APIView):
 ############################# -- Sucursal -- ################################
 
 class SucursalListCreateView(APIView):
-    #permisos
+    #temporal
     permission_classes = [AllowAny]
+
     """
     API para listar y crear sucursales.
     """
@@ -105,8 +109,9 @@ class SucursalListCreateView(APIView):
 
 
 class SucursalDetailView(APIView):
-    #permisos
+    #temporal
     permission_classes = [AllowAny]
+    
     """
     API para obtener, actualizar o eliminar una sucursal por ID.
     """
@@ -151,8 +156,10 @@ class SucursalDetailView(APIView):
 ############################# -- Producto -- ################################
 
 class ProductoListCreateView(APIView):
-    #permisos
+
+    #temporal
     permission_classes = [AllowAny]
+
     """
     API para listar productos con búsqueda por palabra y filtrado por marca.
     """
@@ -199,8 +206,10 @@ class ProductoListCreateView(APIView):
 
 
 class ProductoDetailView(APIView):
-    #permisos
+
+    #temporal
     permission_classes = [AllowAny]
+
     """
     API para obtener, actualizar o eliminar un producto por ID.
     """
