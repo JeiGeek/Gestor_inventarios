@@ -7,9 +7,14 @@ from django.db.models import Q
 from .models import Producto, Marca, Sucursal
 from .serializers import ProductoSerializer, MarcaSerializer, SucursalSerializer
 
+# acceder a las consultas sin autenticacion
+from rest_framework.permissions import AllowAny
+
 ############################# -- Marca-- ################################
 
 class MarcaListCreateView(APIView):
+    #permisos
+    permission_classes = [AllowAny]
     """
     API para listar y crear marcas.
     """
@@ -30,6 +35,8 @@ class MarcaListCreateView(APIView):
 
 
 class MarcaDetailView(APIView):
+    #permisos
+    permission_classes = [AllowAny]
     """
     API para obtener, actualizar o eliminar una marca por ID.
     """
@@ -77,6 +84,8 @@ class MarcaDetailView(APIView):
 ############################# -- Sucursal -- ################################
 
 class SucursalListCreateView(APIView):
+    #permisos
+    permission_classes = [AllowAny]
     """
     API para listar y crear sucursales.
     """
@@ -96,6 +105,8 @@ class SucursalListCreateView(APIView):
 
 
 class SucursalDetailView(APIView):
+    #permisos
+    permission_classes = [AllowAny]
     """
     API para obtener, actualizar o eliminar una sucursal por ID.
     """
@@ -140,6 +151,8 @@ class SucursalDetailView(APIView):
 ############################# -- Producto -- ################################
 
 class ProductoListCreateView(APIView):
+    #permisos
+    permission_classes = [AllowAny]
     """
     API para listar productos con búsqueda por palabra y filtrado por marca.
     """
@@ -186,6 +199,8 @@ class ProductoListCreateView(APIView):
 
 
 class ProductoDetailView(APIView):
+    #permisos
+    permission_classes = [AllowAny]
     """
     API para obtener, actualizar o eliminar un producto por ID.
     """
