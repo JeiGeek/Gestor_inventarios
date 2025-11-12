@@ -30,6 +30,7 @@ urlpatterns = [
     path('', include('apps.productos.url')),
     path('', include('apps.inventarios.url')),
     path('api/', include('apps.usuarios.urls')),
+    path('api/', include('apps.garantias.urls')),
     
     # Rutas para JWT
 
