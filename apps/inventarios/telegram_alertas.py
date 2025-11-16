@@ -9,30 +9,19 @@ from apps.usuarios.telegram_utils import enviar_telegram
 
 
 def revisar_alertas():
-    """
-    Revisa:
-      - Productos con stock bajo
-      - Productos sin stock
-      - Garantías por vencer
-      - Garantías vencidas
-    y envía alertas por Telegram.
-    """
-
     chat_id = settings.TELEGRAM_DEFAULT_CHAT_ID
     if not chat_id:
         print("⚠️ TELEGRAM_DEFAULT_CHAT_ID no está configurado.")
         return
 
     hoy = date.today()
-    dias_aviso = 8  # mismo criterio que usas en alerta_garantia
+    dias_aviso = 8
 
-    # =========================
-    # 1) PRODUCTOS - STOCK BAJO
-    # =========================
+    # 1) STOCK BAJO
     productos_bajo_stock = Producto.objects.filter(
-        stock__gt=0,                          # aún hay stock
-        stock__lte=F("stock_minimo"),         # pero está en o por debajo del mínimo
-        notificado_stock_bajo=False,          # aún no se notificó
+        stock__gt=0,
+        stock__lte=F("stock_minimo"),
+        notificado_stock_bajo=False,
     )
 
     for p in productos_bajo_stock:
@@ -46,9 +35,7 @@ def revisar_alertas():
         p.notificado_stock_bajo = True
         p.save(update_fields=["notificado_stock_bajo"])
 
-    # =========================
-    # 2) PRODUCTOS - SIN STOCK
-    # =========================
+    # 2) SIN STOCK
     productos_sin_stock = Producto.objects.filter(
         stock__lte=0,
         notificado_sin_stock=False,
@@ -64,27 +51,13 @@ def revisar_alertas():
         p.notificado_sin_stock = True
         p.save(update_fields=["notificado_sin_stock"])
 
-    # (Opcional pero recomendable)
-    # Si algún producto volvió a tener stock > stock_minimo,
-    # podemos resetear las banderas para futuras alertas:
-    productos_recuperados = Producto.objects.filter(
-        stock__gt=F("stock_minimo"),
-    ).filter(
-        # que tenga alguna bandera en True
-        # (en SQLite/SQL simple se hace en dos pasos o con Q)
-    )
-
-    # Si quieres hacer esto más fino luego, lo vemos, por ahora lo dejo en comentario.
-
-    # =========================
     # 3) GARANTÍAS POR VENCER
-    # =========================
     limite_aviso = hoy + timedelta(days=dias_aviso)
 
     garantias_por_vencer = Garantia.objects.filter(
-        fecha_fin_garantia__gte=hoy,              # aún no vencida
-        fecha_fin_garantia__lte=limite_aviso,     # dentro del rango de aviso
-        notificada_por_vencer=False,              # aún no notificada
+        fecha_fin_garantia__gte=hoy,
+        fecha_fin_garantia__lte=limite_aviso,
+        notificada_por_vencer=False,
     )
 
     for g in garantias_por_vencer:
@@ -100,12 +73,10 @@ def revisar_alertas():
         g.notificada_por_vencer = True
         g.save(update_fields=["notificada_por_vencer"])
 
-    # =========================
     # 4) GARANTÍAS VENCIDAS
-    # =========================
     garantias_vencidas = Garantia.objects.filter(
-        fecha_fin_garantia__lt=hoy,           # ya vencida
-        notificada_vencida=False,             # aún no se notificó
+        fecha_fin_garantia__lt=hoy,
+        notificada_vencida=False,
     )
 
     for g in garantias_vencidas:

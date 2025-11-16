@@ -38,13 +38,26 @@ class Producto(models.Model):
 
     # nivel mínimo aceptable de stock
     stock_minimo = models.PositiveIntegerField(default=3)
-
     # banderas para no enviar alertas duplicadas
     notificado_stock_bajo = models.BooleanField(default=False)
     notificado_sin_stock = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        # Convertir el nombre con la combinacion requerida
+        # Si el producto ya existía, vemos cómo cambió el stock
+        if self.pk is not None:
+            try:
+                anterior = Producto.objects.get(pk=self.pk)
+            except Producto.DoesNotExist:
+                anterior = None
+
+            if anterior is not None:
+                # Si el stock AUMENTÓ respecto al valor anterior,
+                # reseteamos las banderas para permitir nuevas alertas
+                if self.stock > anterior.stock:
+                    self.notificado_stock_bajo = False
+                    self.notificado_sin_stock = False
+
+        # Actualizamos el nombre
         self.nombre = f"{self.marca.nombre} {self.caja} {self.amperaje} {self.polaridad}"
         super().save(*args, **kwargs)
 
