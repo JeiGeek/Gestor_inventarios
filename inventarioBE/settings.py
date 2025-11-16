@@ -71,7 +71,7 @@ INSTALLED_APPS = [
     # Apps
     'apps.usuarios',
     'apps.productos',
-    'apps.inventarios',
+    'apps.inventarios.apps.InventariosConfig',
     'apps.garantias',
     'apps.clientes',
 ]
@@ -321,3 +321,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True # Permitir todas las origines (solo para desarrollo) recordar cambiar en produccion
+
+TELEGRAM_BOT_TOKEN = config("TELEGRAM_BOT_TOKEN")
+TELEGRAM_DEFAULT_CHAT_ID = config("TELEGRAM_DEFAULT_CHAT_ID")
+
