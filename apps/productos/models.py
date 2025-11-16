@@ -36,6 +36,13 @@ class Producto(models.Model):
     # Relacion muchos a muchos con Sucursal a través de ProductoSucursal
     sucursales = models.ManyToManyField(Sucursal, through='ProductoSucursal', related_name='productos')
 
+    # nivel mínimo aceptable de stock
+    stock_minimo = models.PositiveIntegerField(default=3)
+
+    # banderas para no enviar alertas duplicadas
+    notificado_stock_bajo = models.BooleanField(default=False)
+    notificado_sin_stock = models.BooleanField(default=False)
+
     def save(self, *args, **kwargs):
         # Convertir el nombre con la combinacion requerida
         self.nombre = f"{self.marca.nombre} {self.caja} {self.amperaje} {self.polaridad}"

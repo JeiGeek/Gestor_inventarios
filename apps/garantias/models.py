@@ -22,6 +22,10 @@ class Garantia(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
     sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
+
+    # banderas para evitar avisar mil veces
+    notificada_por_vencer = models.BooleanField(default=False)
+    notificada_vencida = models.BooleanField(default=False)
     
     @property
     def tiempo_restante(self):
