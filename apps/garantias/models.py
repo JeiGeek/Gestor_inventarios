@@ -18,6 +18,8 @@ class Garantia(models.Model):
     fecha_inicio_garantia = models.DateField()
     fecha_fin_garantia = models.DateField()
     alerta_garantia = models.BooleanField(default=False)
+    cliente = models.CharField(max_length=600, default="Sin cliente")
+    telefono_cliente = models.CharField(max_length=20, blank=True, null=True)
 
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
