@@ -51,6 +51,20 @@ class Garantia(models.Model):
     @property
     def nombre_producto(self):
         return self.producto.nombre
+    
+    def refresh_estado(self):
+        hoy = date.today()
+        dias = (self.fecha_fin_garantia - hoy).days
+
+        self.alerta_garantia = dias <= 8
+        
+        # Actualizar estado
+        if dias < 0:
+            self.estado_id = 2  # inactiva
+        else:
+            self.estado_id = 1  # activa
+        
+        self.save(update_fields=['alerta_garantia', 'estado'])
 
 
 @receiver(pre_save, sender=Garantia)
