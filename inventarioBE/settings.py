@@ -76,6 +76,8 @@ INSTALLED_APPS = [
     'apps.clientes',
 ]
 
+SITE_ID = 1
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -120,15 +122,32 @@ WSGI_APPLICATION = 'inventarioBE.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
+'''DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', default='5432'),
+        'CONN_MAX_AGE': 600,  # mantiene conexiones abiertas para mejor rendimiento
         'OPTIONS': {
-            'timeout': 30,  # puedes subir a 60
+            'sslmode': 'require',  # importante para Neon
         },
     }
+}'''
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "inventario",      # nombre de tu base de datos
+        "USER": "postgres",           # usuario de postgres (o el que uses)
+        "PASSWORD": "1234",  # la contraseña de ese usuario
+        "HOST": "localhost",
+        "PORT": "5432",
+    }
 }
+
 
 
 # Password validation
