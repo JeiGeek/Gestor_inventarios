@@ -133,7 +133,7 @@ WSGI_APPLICATION = 'inventarioBE.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-'''DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DB_NAME'),
@@ -146,7 +146,7 @@ WSGI_APPLICATION = 'inventarioBE.wsgi.application'
             'sslmode': 'require',  # importante para Neon
         },
     }
-}'''
+}
 
 '''DATABASES = {
     "default": {
@@ -161,12 +161,12 @@ WSGI_APPLICATION = 'inventarioBE.wsgi.application'
 
 # Database
 # Usamos siempre DATABASE_URL desde variables de entorno
-DATABASES = {
+'''DATABASES = {
     "default": dj_database_url.config(
         default=config("DATABASE_URL", default="postgres://postgres:1234@localhost:5432/inventario"),
         conn_max_age=600,
     )
-}
+}'''
 
 
 
