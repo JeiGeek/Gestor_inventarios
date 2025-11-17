@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 from datetime import timedelta #para configurar el tiempo de expiracion del token
 from decouple import config #para manejar credenciales en github
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,16 +23,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-w48xdp^cgw-292)34h^1udou4g6i3+()fm)0xvchyfn^*j%!z$'
+#SECRET_KEY = 'django-insecure-w48xdp^cgw-292)34h^1udou4g6i3+()fm)0xvchyfn^*j%!z$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
+
+SECRET_KEY = config(
+    "SECRET_KEY",
+    default="django-insecure-w48xdp^cgw-292)34h^1udou4g6i3+()fm)0xvchyfn^*j%!z$"
+)
+
+DEBUG = config("DEBUG", default=True, cast=bool)
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".onrender.com"]
+
 
 # Definir el modelo de usuario personalizado
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
 
 
 #Configuracion de CORS
@@ -137,7 +148,7 @@ WSGI_APPLICATION = 'inventarioBE.wsgi.application'
     }
 }'''
 
-DATABASES = {
+'''DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "inventario",      # nombre de tu base de datos
@@ -146,8 +157,20 @@ DATABASES = {
         "HOST": "localhost",
         "PORT": "5432",
     }
+}'''
+
+# Database
+# Usamos siempre DATABASE_URL desde variables de entorno
+DATABASES = {
+    "default": dj_database_url.config(
+        default=config("DATABASE_URL", default="postgres://postgres:1234@localhost:5432/inventario"),
+        conn_max_age=600,
+    )
 }
 
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
 # Password validation
@@ -241,15 +264,20 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_OAUTH2_SECRET')
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True # Permitir todas las origines (para desarrollo)
+
+# URL de redirección en caso de error durante el login por OAuth y no encuentra usuario en la BD
+SOCIAL_AUTH_LOGIN_ERROR_URL = "http://localhost:5173/?error=oauth"
+
+
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',   # para Google
     'django.contrib.auth.backends.ModelBackend',  # login normal
 )
-
-
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_OAUTH2_KEY')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_OAUTH2_SECRET')
 
 
 #  Pipeline (para ejecutar nuestra lógica al crear usuario)
@@ -279,67 +307,9 @@ SOCIAL_AUTH_PIPELINE = (
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = True # Permitir todas las origines (para desarrollo)
-
-# URL de redirección en caso de error durante el login por OAuth y no encuentra usuario en la BD
-SOCIAL_AUTH_LOGIN_ERROR_URL = "http://localhost:5173/?error=oauth"
 
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
-
-AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',   # para Google
-    'django.contrib.auth.backends.ModelBackend',  # login normal
-)
-
-
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_OAUTH2_KEY')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_OAUTH2_SECRET')
-
-
-#  Pipeline (para ejecutar nuestra lógica al crear usuario)
-SOCIAL_AUTH_PIPELINE = (
-    'social_core.pipeline.social_auth.social_details',
-    'social_core.pipeline.social_auth.social_uid',
-    'social_core.pipeline.social_auth.auth_allowed',
-    'social_core.pipeline.user.get_username',
-    'apps.usuarios.pipelines.associate_by_email', 
-    'social_core.pipeline.social_auth.social_user',
-
-    
-    'social_core.pipeline.user.create_user',
-    
-    'apps.usuarios.pipelines.asignar_rol_por_defecto',
-
-    'apps.usuarios.pipelines.associate_user_safe',
-    'social_core.pipeline.social_auth.load_extra_data',
-    'social_core.pipeline.user.user_details',
-    'apps.usuarios.pipelines.save_profile',
-    'apps.usuarios.pipelines.create_jwt_token_with_role',
-    'apps.usuarios.pipelines.social_user_safe',
-    
-)
-
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = True # Permitir todas las origines (para desarrollo)
-
-# URL de redirección en caso de error durante el login por OAuth y no encuentra usuario en la BD
-SOCIAL_AUTH_LOGIN_ERROR_URL = "http://localhost:5173/?error=oauth"
-
-SOCIAL_AUTH_RAISE_EXCEPTIONS = False
-
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = True # Permitir todas las origines (solo para desarrollo) recordar cambiar en produccion
 
 TELEGRAM_BOT_TOKEN = config("TELEGRAM_BOT_TOKEN")
 TELEGRAM_DEFAULT_CHAT_ID = config("TELEGRAM_DEFAULT_CHAT_ID")
