@@ -48,7 +48,7 @@ def create_jwt_token_with_role(strategy, backend, user, *args, **kwargs):
     refresh['email'] = user.email or ""
     access_token = str(refresh.access_token)
     refresh_token = str(refresh)
-    frontend_url = "http://localhost:5173/"
+    frontend_url = "https://proyecto-powervolt.onrender.com/"
     return strategy.redirect(f"{frontend_url}?token={access_token}&refresh={refresh_token}")
 
 # safe wrappers (optional, pueden adaptarse)
